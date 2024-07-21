@@ -13,11 +13,15 @@ struct NaturalItemStyle: ViewModifier {
 }
 
 
-struct NaturalForm<Content: View>: View {
+public struct NaturalForm<Content: View>: View {
     @ViewBuilder
     var content: Content
 
-    var body: some View {
+    public init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    public var body: some View {
         VStack(spacing: 0) {
             ForEach(sectionOf: content) { section in
                 NaturalSection {
