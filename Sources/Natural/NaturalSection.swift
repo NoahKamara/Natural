@@ -19,6 +19,7 @@ struct NaturalSection<Content: View>: View {
         NaturalLayout {
             ForEach(subviewOf: content) { subview in
                 subview
+                    .modifier(NaturalItemStyle())
             }
         }
         .textFieldStyle(.roundedBorder)

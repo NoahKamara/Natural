@@ -12,6 +12,15 @@ struct NaturalItemStyle: ViewModifier {
     }
 }
 
+struct Block: View {
+    var body: some View {
+        /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Hello, world!@*/Text("Hello, world!")/*@END_MENU_TOKEN@*/
+    }
+}
+
+#Preview {
+    Block()
+}
 
 public struct NaturalForm<Content: View>: View {
     @ViewBuilder
@@ -33,7 +42,6 @@ public struct NaturalForm<Content: View>: View {
                 }
             }
         }
-        .modifier(NaturalItemStyle())
     }
 }
 
