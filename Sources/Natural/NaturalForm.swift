@@ -32,7 +32,7 @@ public struct NaturalForm<Content: View>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            ForEach(sectionOf: content) { section in
+            ForEach(sections: content) { section in
                 NaturalSection {
                     if !section.header.isEmpty {
                         section.header

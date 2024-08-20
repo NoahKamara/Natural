@@ -17,7 +17,7 @@ struct NaturalSection<Content: View>: View {
 
     var body: some View {
         NaturalLayout {
-            ForEach(subviewOf: content) { subview in
+            ForEach(subviews: content) { subview in
                 subview
                     .modifier(NaturalItemStyle())
             }

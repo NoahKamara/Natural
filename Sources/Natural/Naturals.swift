@@ -10,7 +10,7 @@ public struct Naturals<Content: View>: View {
     }
 
     public var body: some View {
-        ForEach(sectionOf: content) { section in
+        ForEach(sections: content) { section in
             NaturalSection {
                 if !section.header.isEmpty {
                     section.header
