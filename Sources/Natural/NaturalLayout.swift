@@ -14,14 +14,17 @@ struct NaturalLayout: Layout {
             for i in subviews.indices { // swiftlint:disable:this identifier_name
                 let subview = subviews[i]
 
-                let size = subview.sizeThatFits(.init(width: .infinity, height: nil))
-
-
-                if let proposalWidth = proposal.width, proposalWidth < size.width {
-                    sizes[i] = subview.sizeThatFits(.init(width: proposalWidth, height: nil))
-                } else {
-                    sizes[i] = size
+                let proposedWidth: CGFloat? = switch subview[NaturalLayoutKey.self] {
+                case .fill: proposal.width ?? .infinity
+                case .fit: nil
                 }
+
+                let size = subview.sizeThatFits(.init(
+                    width: proposedWidth,
+                    height: nil
+                ))
+
+                sizes[i] = size
 
                 offsets[i] = subview.dimensions(in: .init(size))[.lastTextBaseline]
 
@@ -34,8 +37,6 @@ struct NaturalLayout: Layout {
                     CGFloat.zero
                 }
             }
-
-
 
             // swiftlint:disable identifier_name
             var i = 0
@@ -58,6 +59,7 @@ struct NaturalLayout: Layout {
                         // add spacing to previous column
                         potentialWidth += spacings[i+columns]
                     } else if i > 0 {
+                        // first column, not first row so add vertical spacing
                         height += subviews[i].spacing.distance(to: subviews[i-1].spacing, along: .horizontal)
                     }
 
@@ -82,7 +84,6 @@ struct NaturalLayout: Layout {
 
             self.layout = layout
             return CGSize(width: maxWidth, height: height)
-            // swiftlint:enable identifier_name
         }
     }
 
@@ -161,6 +162,7 @@ struct NaturalLayout: Layout {
                     cursor.x += cache.spacings[i]
                 }
 
+                print("!", i, cache.sizes[i])
                 subviews[i].place(
                     at: cursor.applying(.init(translationX: 0, y: rowOffset-cache.offsets[i])),
                     anchor: .topLeading,
@@ -171,60 +173,44 @@ struct NaturalLayout: Layout {
     }
 }
 
-enum NaturalContentHeight {
-    case `default`
+public enum NaturalContentMode: Sendable {
+    case fit
     case fill
 }
 
-extension View {
-    func naturalHeight(_ mode: NaturalContentHeight) -> some View {
+public extension View {
+    func contentWidth(_ mode: NaturalContentMode) -> some View {
         self.layoutValue(key: NaturalLayoutKey.self, value: mode)
     }
 }
 
 struct NaturalLayoutKey: LayoutValueKey {
-    static let defaultValue: NaturalContentHeight = .default
+    static let defaultValue: NaturalContentMode = .fit
+}
+
+
+struct ContentWidthExample: View {
+    @State
+    var text: String = ""
+
+    var body: some View {
+        NaturalSection {
+            Text("Comment")
+            TextField("Write a comment", text: $text, axis: .vertical)
+                .contentWidth(.fill)
+                .lineLimit(4...)
+        }
+    }
 }
 
 #Preview {
     @Previewable @State
-    var text: String = "Hello World this is a "
+    var text: String = "this is a"
 
     @Previewable @State
     var mode: String = "none"
 
-    NaturalSection {
-
-        Group {
-            Text("A Button you can")
-            Button("tap") { print("tapped") }
-            Text("but how about")
-            Text("some Text")
-
-            TextField("4", text: $text, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-
-            TextField("4", text: $text, axis: .horizontal)
-                .textFieldStyle(.roundedBorder)
-
-
-            Text("or even")
-
-            Text("1 How about a picker in the next")
-
-            Picker("2 A picker", selection: $mode) {
-                Text("Mode A").tag("A")
-                Text("Mode B").tag("B")
-                Text("Mode C").tag("C")
-                Text("None").tag("none")
-            }
-
-            Text("3 How about a picker")
-
-            Button("4 wow") { print("more") }
-
-            Text("5 in the next")
-        }
-
+    VStack {
+        ContentWidthExample()
     }
 }
